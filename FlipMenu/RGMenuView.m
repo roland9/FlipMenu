@@ -19,6 +19,14 @@
 
 @implementation RGMenuView
 
+- (id)initWithSize:(CGSize)size foregroundText:(NSString *)foregroundText backgroundText:(NSString *)backgroundText foregroundMenuBlock:(void (^)(void))didSelectForegroundMenuBlock backgroundMenuBlock:(void (^)(void))didSelectBackgroundMenuBlock {
+
+    CGRect frame = CGRectMake(0, 0, size.width, size.height);
+    self = [self initWithFrame:frame foregroundText:foregroundText backgroundText:backgroundText foregroundMenuBlock:didSelectForegroundMenuBlock backgroundMenuBlock:didSelectBackgroundMenuBlock];
+    return self;
+}
+
+
 - (id)initWithFrame:(CGRect)frame foregroundText:(NSString *)foregroundText backgroundText:(NSString *)backgroundText foregroundMenuBlock:(void (^)(void))didSelectForegroundMenuBlock backgroundMenuBlock:(void (^)(void))didSelectBackgroundMenuBlock
 {
     self = [super initWithFrame:frame];
@@ -30,7 +38,7 @@
         [textLabel setTextAlignment:NSTextAlignmentCenter];
         [textLabel setTextColor:[UIColor darkGrayColor]];
         [self addSubview:textLabel];
-        _foregroundLabel = textLabel;
+        self.foregroundLabel = textLabel;
         
         UILabel *textLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame))];
         [textLabel2 setText:backgroundText];
@@ -39,12 +47,12 @@
         [textLabel2 setTextColor:[UIColor blueColor]];
         [textLabel2.layer setTransform:CATransform3DMakeRotation(M_PI, 0, 1, 0)];
         [self addSubview:textLabel2];
-        _backgroundLabel = textLabel2;
-        [_backgroundLabel setHidden:YES];
+        self.backgroundLabel = textLabel2;
+        [self.backgroundLabel setHidden:YES];
         
-        _isForegroundShown = YES;
-        _didSelectForegroundMenuBlock = didSelectForegroundMenuBlock;
-        _didSelectBackgroundMenuBlock = didSelectBackgroundMenuBlock;
+        self.isForegroundShown = YES;
+        self.didSelectForegroundMenuBlock = didSelectForegroundMenuBlock;
+        self.didSelectBackgroundMenuBlock = didSelectBackgroundMenuBlock;
         
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(callActionBlock)];
         [self addGestureRecognizer:tap];
@@ -64,31 +72,22 @@
         [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
             [self.layer setTransform:CATransform3DConcat(self.layer.transform, CATransform3DMakeRotation(M_PI_2, 0, 1, 0))];
         } completion:^(BOOL finished) {
-            _isForegroundShown ? _didSelectBackgroundMenuBlock() : _didSelectForegroundMenuBlock();
+            self.isForegroundShown ? self.didSelectBackgroundMenuBlock() : self.didSelectForegroundMenuBlock();
         }];
     }];
 }
 
 
 - (void)toggleStatus {
-    _isForegroundShown = !_isForegroundShown;
-    [self showBackground:!_isForegroundShown];
+    self.isForegroundShown = !self.isForegroundShown;
+    [self showBackground:!self.isForegroundShown];
 }
 
 
 - (void)showBackground:(BOOL)shouldShowBackground {
-    [_backgroundLabel setHidden:!shouldShowBackground];
-    [_foregroundLabel setHidden:shouldShowBackground];
-    _isForegroundShown = !shouldShowBackground;
+    [self.backgroundLabel setHidden:!shouldShowBackground];
+    [self.foregroundLabel setHidden:shouldShowBackground];
+    self.isForegroundShown = !shouldShowBackground;
 }
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
 
 @end

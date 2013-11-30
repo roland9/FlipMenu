@@ -8,6 +8,8 @@
 
 #import "RGViewController.h"
 #import "RGMenuView.h"
+#import <FrameAccessor.h>
+
 
 @interface RGViewController ()
 
@@ -24,14 +26,16 @@
 {
     [super viewDidLoad];
     
-    _menu1= [[RGMenuView alloc] initWithFrame:CGRectMake(100, 100, 200, 200) foregroundText:@"Menu Help" backgroundText:@"Next Menu" foregroundMenuBlock:^{
+
+    self.menu1= [[RGMenuView alloc] initWithSize:CGSizeMake(200., 200.) foregroundText:@"Menu Help" backgroundText:@"Next Menu" foregroundMenuBlock:^{
         NSLog(@"foreground selected");
     } backgroundMenuBlock:^{
         NSLog(@"background selected");
     }];
     
-    
-    [self.view addSubview:_menu1];
+    self.menu1.center = self.view.middlePoint;
+    [self.menu1 setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin];
+    [self.view addSubview:self.menu1];
 }
 
 @end
