@@ -17,33 +17,48 @@
 @end
 
 
-@implementation RGMenuView
+@implementation RGMenuView {
+    BOOL isSubMenu;
+}
+
 // factory
 + (id)menuWithText:(NSString *)menuText block:(void (^)(void))didSelectMenu {
     NSAssert(menuText, @"menuText is mandatory");
     NSAssert(didSelectMenu, @"didSelectMenu block is mandatory");
     
-    RGMenuView *menu = [[RGMenuView alloc] initWithSize:CGSizeMake(80, 80) text:menuText block:didSelectMenu backsideMenus:NULL];
+    RGMenuView *menu = [[RGMenuView alloc] initWithSize:CGSizeMake(80, 80) text:menuText block:didSelectMenu backsideMenus:NULL isSubMenu:YES];
     return menu;
 }
 
 
-// init
+// public inits
 - (id)initWithSize:(CGSize)size text:(NSString *)menuText block:(void (^)(void))didSelectMenu backsideMenus:(NSArray *)backsideMenus {
+    return [self initWithSize:size text:menuText block:didSelectMenu backsideMenus:backsideMenus isSubMenu:NO];
+}
 
+- (id)initWithFrame:(CGRect)frame text:(NSString *)menuText block:(void (^)(void))didSelectMenuBlock backsideMenus:(NSArray *)backsideMenus {
+    return [self initWithFrame:frame text:menuText block:didSelectMenuBlock backsideMenus:backsideMenus isSubMenu:NO];
+}
+
+- (id)initWithSize:(CGSize)size text:(NSString *)menuText block:(void (^)(void))didSelectMenu backsideMenus:(NSArray *)backsideMenus isSubMenu:(BOOL)subMenuFlag {
+    
     CGRect frame = CGRectMake(0, 0, size.width, size.height);
-    self = [self initWithFrame:frame text:menuText block:didSelectMenu backsideMenus:backsideMenus];
+    self = [self initWithFrame:frame text:menuText block:didSelectMenu backsideMenus:backsideMenus isSubMenu:(BOOL)subMenuFlag];
     return self;
 }
 
+
 // designated initializer
-- (id)initWithFrame:(CGRect)frame text:(NSString *)menuText block:(void (^)(void))didSelectMenuBlock backsideMenus:(NSArray *)backsideMenus {
+- (id)initWithFrame:(CGRect)frame text:(NSString *)menuText block:(void (^)(void))didSelectMenuBlock backsideMenus:(NSArray *)backsideMenus isSubMenu:(BOOL)subMenuFlag {
     self = [super initWithFrame:frame];
     if (self) {
+        
+        isSubMenu = subMenuFlag;
+        
         [self setBackgroundColor:[UIColor yellowColor]];
         UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame))];
         [textLabel setText:menuText];
-        [textLabel setFont:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline]];
+        [textLabel setFont:[UIFont preferredFontForTextStyle:isSubMenu ? UIFontTextStyleSubheadline : UIFontTextStyleHeadline]];
         [textLabel setTextAlignment:NSTextAlignmentCenter];
         [textLabel setTextColor:[UIColor darkGrayColor]];
         [textLabel setNumberOfLines:3];
@@ -55,7 +70,7 @@
         self.backsideMenuView = [[UIView alloc] initWithFrame:backsideMenuFrame];
         [self.backsideMenuView setBackgroundColor:[UIColor brownColor]];
         [self.backsideMenuView setHidden:YES];
-        [self.backsideMenuView.layer setTransform:CATransform3DMakeRotation(M_PI, 0, 1, 0)];
+        [self.backsideMenuView.layer setTransform:CATransform3DMakeRotation(M_PI, 0., 1., 0.)];
         [self addSubview:self.backsideMenuView];
 
         NSUInteger subMenuIndex = 0;
@@ -73,7 +88,7 @@
         self.isFrontsideShown = YES;
         self.didSelectMenuBlock = didSelectMenuBlock;
         
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(callActionBlock)];
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapMenu)];
         [self addGestureRecognizer:tap];
     }
     return self;
@@ -88,20 +103,27 @@
 ////////////////////////////////////////////////////////////////////
 # pragma mark - Private
 
-- (void)callActionBlock {
+- (void)didTapMenu {
     
-    [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
-        // add the rotation transform the the EXISTING transform, thereby rotating endlessly (BUT rounding error?!?)
-        [self.layer setTransform:CATransform3DConcat(self.layer.transform, CATransform3DMakeRotation(M_PI_2, 0, 1, 0))];
-    } completion:^(BOOL finished) {
-        [self toggleStatus];
+    if (isSubMenu) {
+        self.didSelectMenuBlock();
         
-        [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
-            [self.layer setTransform:CATransform3DConcat(self.layer.transform, CATransform3DMakeRotation(M_PI_2, 0, 1, 0))];
+    } else {
+        
+        // rotate menu back & forth
+        [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+            // add the rotation transform the the EXISTING transform, thereby rotating endlessly (BUT rounding error?!?)
+            [self.layer setTransform:CATransform3DConcat(self.layer.transform, CATransform3DMakeRotation(M_PI_2, 0., 1., 0.))];
         } completion:^(BOOL finished) {
-            self.isFrontsideShown ? self.didSelectMenuBlock() : nil; // todoRG pending - call block of background menu
+            [self toggleStatus];
+            
+            [UIView animateWithDuration:0.25f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
+                [self.layer setTransform:CATransform3DConcat(self.layer.transform, CATransform3DMakeRotation(M_PI_2, 0., 1., 0.))];
+            } completion:^(BOOL finished) {
+                self.isFrontsideShown ? self.didSelectMenuBlock() : nil; // todoRG pending - call block of background menu
+            }];
         }];
-    }];
+    }
 }
 
 

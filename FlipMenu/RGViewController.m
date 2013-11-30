@@ -17,6 +17,7 @@
 
 @interface RGViewController ()
 @property (nonatomic, strong) RGMenuView *menu1;
+@property (nonatomic, strong) RGMenuView *menu2;
 @end
 
 
