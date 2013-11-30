@@ -17,7 +17,6 @@
 
 @interface RGViewController ()
 @property (nonatomic, strong) RGMenuView *menu1;
-@property (nonatomic, strong) RGMenuView *menu2;
 @end
 
 
@@ -40,6 +39,17 @@
     self.menu1.center = self.view.middlePoint;
     [self.menu1 setAutoresizingMask:UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin];
     [self.view addSubview:self.menu1];
+    
+    UITapGestureRecognizer *tapOutsideMenu = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOutsideMenu:)];
+    [self.view addGestureRecognizer:tapOutsideMenu];
 }
+
+
+- (void)didTapOutsideMenu:(UITapGestureRecognizer *)tap {
+    NSAssert([tap isKindOfClass:[UITapGestureRecognizer class]], @"inconsistent");
+
+    [self.menu1 popToRoot];
+}
+
 
 @end

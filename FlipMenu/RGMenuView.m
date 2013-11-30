@@ -21,6 +21,15 @@
     BOOL isSubMenu;
 }
 
+
+-(void)popToRoot {
+    NSAssert(!isSubMenu, @"switch to root only allowed for main/root menu, not the sub menus");
+    if (!self.isFrontsideShown) {
+        [self didTapMenu];
+    }
+}
+
+
 // factory
 + (id)menuWithText:(NSString *)menuText block:(void (^)(void))didSelectMenu {
     NSAssert(menuText, @"menuText is mandatory");
