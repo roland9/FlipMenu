@@ -10,7 +10,10 @@
 
 @interface RGMenuView : UIView
 
-- (id)initWithFrame:(CGRect)frame foregroundText:(NSString *)foregroundText backgroundText:(NSString *)backgroundText foregroundMenuBlock:(void (^)(void))didSelectForegroundMenuBlock backgroundMenuBlock:(void (^)(void))didSelectBackgroundMenuBlock;
-- (id)initWithSize:(CGSize)size foregroundText:(NSString *)foregroundText backgroundText:(NSString *)backgroundText foregroundMenuBlock:(void (^)(void))didSelectForegroundMenuBlock backgroundMenuBlock:(void (^)(void))didSelectBackgroundMenuBlock;
+@property (nonatomic, readonly) NSString *menuText;
+
++ (id)menuWithText:(NSString *)menuText block:(void (^)(void))didSelectMenu;
+- (id)initWithFrame:(CGRect)frame text:(NSString *)menuText block:(void (^)(void))didSelectMenuBlock backsideMenus:(NSArray *)backsideMenus;
+- (id)initWithSize:(CGSize)size text:(NSString *)menuText block:(void (^)(void))didSelectMenuBlock backsideMenus:(NSArray *)backsideMenus;
 
 @end
